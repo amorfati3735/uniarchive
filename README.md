@@ -1,1 +1,1 @@
-Ideation docs
+Frontend scaffold done
