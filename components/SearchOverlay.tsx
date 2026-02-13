@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Command, Zap, ArrowRight, Hash, BookOpen, User } from 'lucide-react';
 import { MOCK_RESOURCES, AVAILABLE_TOPICS } from '../constants';
-import { queryQuickAI } from '../services/aiService';
+import { api } from '../services/api';
 
 interface Props {
   onClose: () => void;
@@ -18,7 +18,7 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
 
   useEffect(() => {
     inputRef.current?.focus();
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
       if (e.key === 'Tab') {
@@ -34,9 +34,15 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
     e.preventDefault();
     if (aiMode && query.trim()) {
       setIsAiLoading(true);
-      const res = await queryQuickAI(query);
-      setAiResponse(res.answer);
-      setIsAiLoading(false);
+      setIsAiLoading(true);
+      try {
+        const answer = await api.askAI(query);
+        setAiResponse(answer);
+      } catch (err) {
+        setAiResponse("Sorry, I couldn't reach the AI service right now.");
+      } finally {
+        setIsAiLoading(false);
+      }
     }
   };
 
@@ -52,16 +58,16 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] bg-uni-black/80 backdrop-blur-sm p-4 font-mono">
       <div className="w-full max-w-2xl bg-uni-panel border border-uni-border shadow-2xl overflow-hidden flex flex-col max-h-[60vh]">
-        
+
         {/* Search Input Area */}
         <form onSubmit={handleSearch} className="flex items-center p-4 border-b border-uni-border bg-uni-dark relative">
           {aiMode ? (
-             <Zap className="text-uni-neon mr-3 animate-pulse" size={24} />
+            <Zap className="text-uni-neon mr-3 animate-pulse" size={24} />
           ) : (
-             <Search className="text-uni-muted mr-3" size={24} />
+            <Search className="text-uni-muted mr-3" size={24} />
           )}
-          
-          <input 
+
+          <input
             ref={inputRef}
             type="text"
             value={query}
@@ -69,7 +75,7 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
             placeholder={aiMode ? "Ask AI anything about the archives..." : "Search subjects, notes, tags..."}
             className="flex-1 bg-transparent text-lg text-uni-contrast outline-none placeholder:text-uni-muted/50 font-sans"
           />
-          
+
           <div className="flex items-center gap-2">
             <span className={`text-[10px] px-2 py-1 border rounded transition-colors ${aiMode ? 'border-uni-neon text-uni-neon bg-uni-neon/10' : 'border-uni-border text-uni-muted'}`}>
               TAB {aiMode ? 'OFF' : 'FOR AI'}
@@ -80,25 +86,25 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
 
         {/* Results Area */}
         <div className="overflow-y-auto p-2">
-          
+
           {aiMode ? (
             <div className="p-4">
               {!aiResponse && !isAiLoading && (
                 <div className="text-center text-uni-muted py-8">
                   <Zap size={48} className="mx-auto mb-4 opacity-20" />
-                  <p>AI Mode is active. Ask questions like <br/>"What are the key topics in BMAT202L?"</p>
+                  <p>AI Mode is active. Ask questions like <br />"What are the key topics in BMAT202L?"</p>
                 </div>
               )}
               {isAiLoading && (
-                 <div className="space-y-3">
-                   <div className="h-4 w-3/4 bg-uni-border animate-pulse rounded"></div>
-                   <div className="h-4 w-1/2 bg-uni-border animate-pulse rounded"></div>
-                 </div>
+                <div className="space-y-3">
+                  <div className="h-4 w-3/4 bg-uni-border animate-pulse rounded"></div>
+                  <div className="h-4 w-1/2 bg-uni-border animate-pulse rounded"></div>
+                </div>
               )}
               {aiResponse && (
                 <div className="prose prose-invert prose-sm">
-                   <h4 className="text-uni-neon font-bold mb-2 uppercase text-xs">AI Response</h4>
-                   <p className="text-uni-contrast leading-relaxed">{aiResponse}</p>
+                  <h4 className="text-uni-neon font-bold mb-2 uppercase text-xs">AI Response</h4>
+                  <p className="text-uni-contrast leading-relaxed">{aiResponse}</p>
                 </div>
               )}
             </div>
@@ -111,8 +117,8 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
                     <div className="mb-2">
                       <div className="px-3 py-2 text-xs font-bold text-uni-muted uppercase">Subjects</div>
                       {filteredSubjects.map(code => (
-                        <button 
-                          key={code} 
+                        <button
+                          key={code}
                           onClick={() => { onSelectSubject(code); onClose(); }}
                           className="w-full flex items-center px-3 py-3 hover:bg-uni-border/50 rounded group transition-colors text-left"
                         >
@@ -129,7 +135,7 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
                     <div>
                       <div className="px-3 py-2 text-xs font-bold text-uni-muted uppercase">Resources</div>
                       {filteredResources.map(res => (
-                        <button 
+                        <button
                           key={res.id}
                           onClick={() => { onSelectResource(res.id); onClose(); }}
                           className="w-full flex items-center px-3 py-3 hover:bg-uni-border/50 rounded group transition-colors text-left"
@@ -172,8 +178,8 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
         </div>
 
         <div className="p-2 border-t border-uni-border bg-uni-black text-[10px] text-uni-muted flex justify-between">
-           <span>Navigate with arrows</span>
-           <span>NVIDIA NIM Powered</span>
+          <span>Navigate with arrows</span>
+          <span>NVIDIA NIM Powered</span>
         </div>
       </div>
     </div>
