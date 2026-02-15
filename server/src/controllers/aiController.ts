@@ -12,13 +12,18 @@ export const askAI = async (req: Request, res: Response): Promise<void> => {
     }
 
     const apiKey = process.env.NVIDIA_API_KEY;
-    // const apiEndpoint = process.env.NVIDIA_API_ENDPOINT || 'https://integrate.api.nvidia.com/v1/chat/completions';
-    // const modelName = process.env.NVIDIA_MODEL || "meta/llama3-70b-instruct";
+    const apiEndpoint = process.env.NVIDIA_API_ENDPOINT || 'https://integrate.api.nvidia.com/v1/chat/completions';
+    const modelName = process.env.NVIDIA_MODEL || "meta/llama3-70b-instruct";
 
     // Fallback to OpenAI if NVIDIA is failing (or just better logging)
     // For now, let's stick to the user's config but log everything.
 
     if (!apiKey) {
+        console.error('[AI] Error: NVIDIA_API_KEY is missing in server environment variables.');
+        res.status(500).json({
+            answer: "Server Error: AI Service not configured (Missing API Key)."
+        });
+        return;
     }
 
     console.log(`[AI] Querying: ${apiEndpoint} with model: ${modelName}`);

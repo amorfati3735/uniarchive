@@ -51,6 +51,8 @@ export const createResource = async (req: Request, res: Response) => {
             return;
         }
 
+        const metadata = JSON.parse(req.body.data);
+
         let result;
         try {
             console.log('[Upload] Starting Cloudinary upload...');
