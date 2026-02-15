@@ -70,9 +70,9 @@ export const UploadOverlay: React.FC<Props> = ({ onClose, onUploadComplete }) =>
 
       onUploadComplete(newResource);
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed", error);
-      alert("Upload failed. Please try again.");
+      alert(error.message || "Upload failed. Please try again.");
     } finally {
       setIsPublishing(false);
     }
