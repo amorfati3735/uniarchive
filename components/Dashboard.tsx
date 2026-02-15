@@ -15,6 +15,7 @@ import { Footer } from './Footer';
 import { Library } from './Library';
 
 import { api } from '../services/api';
+import { MobileNav } from './MobileNav';
 
 export const Dashboard: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -43,6 +44,8 @@ export const Dashboard: React.FC = () => {
   const [courseStats, setCourseStats] = useState<CourseStats[]>([]);
   const [topSlots, setTopSlots] = useState<{ name: string, resources: number, score: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // --- DATA FETCHING ---
 
@@ -401,8 +404,39 @@ export const Dashboard: React.FC = () => {
             {/* Main Grid Layout */}
             <div className="flex flex-col lg:flex-row gap-8">
 
-              {/* Filter Sidebar */}
-              <div className="hidden lg:block w-64 shrink-0 space-y-8">
+              {/* Mobile Filter Toggle */}
+              <div className="lg:hidden mb-4 flex gap-2 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setIsMobileFilterOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-uni-panel border border-uni-border text-xs font-bold uppercase hover:border-uni-neon transition-colors shrink-0"
+                >
+                  <Filter size={14} /> Filters {(selectedType !== 'ALL' || selectedSlot !== 'ALL') && <div className="w-2 h-2 bg-uni-neon rounded-full" />}
+                </button>
+                {/* Quick Type Chips for Mobile */}
+                {['Notes', 'Question Bank', 'Solution'].map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type === selectedType ? 'ALL' : type as any)}
+                    className={`px-3 py-2 border text-[10px] font-bold uppercase transition-colors shrink-0 ${selectedType === type ? 'bg-uni-neon text-uni-black border-uni-neon' : 'border-uni-border text-uni-muted'}`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
+              {/* Filter Sidebar (Desktop + Mobile Sheet) */}
+              <div className={`
+                lg:block w-64 shrink-0 space-y-8
+                ${isMobileFilterOpen ? 'fixed inset-0 z-[60] bg-uni-black/95 backdrop-blur-xl p-6 overflow-y-auto animate-in slide-in-from-bottom-10' : 'hidden'}
+              `}>
+
+                {/* Mobile Header */}
+                <div className="lg:hidden flex justify-between items-center mb-6">
+                  <h3 className="font-display font-bold text-xl text-uni-contrast">FILTERS</h3>
+                  <button onClick={() => setIsMobileFilterOpen(false)} className="p-2 text-uni-muted hover:text-uni-alert border border-uni-border rounded">
+                    ✕
+                  </button>
+                </div>
 
                 {/* Type Filter */}
                 <div>
@@ -527,6 +561,13 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
       </main>
+      <MobileNav
+        activeTab={activeTab}
+        onNavigate={handleNavigation}
+        onSearch={() => setIsSearchOpen(true)}
+        isLoggedIn={!!currentUser}
+        onLogin={() => setIsLoginOpen(true)}
+      />
     </div>
   );
 };

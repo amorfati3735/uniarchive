@@ -73,14 +73,25 @@ export const SearchOverlay: React.FC<Props> = ({ onClose, onSelectResource, onSe
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={aiMode ? "Ask AI anything about the archives..." : "Search subjects, notes, tags..."}
-            className="flex-1 bg-transparent text-lg text-uni-contrast outline-none placeholder:text-uni-muted/50 font-sans"
+            className="flex-1 bg-transparent text-lg text-uni-contrast outline-none placeholder:text-uni-muted/50 font-sans min-w-0"
           />
 
-          <div className="flex items-center gap-2">
-            <span className={`text-[10px] px-2 py-1 border rounded transition-colors ${aiMode ? 'border-uni-neon text-uni-neon bg-uni-neon/10' : 'border-uni-border text-uni-muted'}`}>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Mobile AI Toggle */}
+            <button
+              type="button"
+              onClick={() => setAiMode(!aiMode)}
+              className={`md:hidden p-2 rounded-full transition-colors ${aiMode ? 'bg-uni-neon/20 text-uni-neon' : 'bg-uni-panel text-uni-muted'}`}
+            >
+              <Zap size={18} fill={aiMode ? "currentColor" : "none"} />
+            </button>
+
+            {/* Desktop Hint */}
+            <span className={`hidden md:inline-flex text-[10px] px-2 py-1 border rounded transition-colors ${aiMode ? 'border-uni-neon text-uni-neon bg-uni-neon/10' : 'border-uni-border text-uni-muted'}`}>
               TAB {aiMode ? 'OFF' : 'FOR AI'}
             </span>
-            <span className="text-[10px] px-2 py-1 border border-uni-border text-uni-muted rounded">ESC</span>
+            <span className="hidden md:inline text-[10px] px-2 py-1 border border-uni-border text-uni-muted rounded">ESC</span>
+            <button type="button" onClick={onClose} className="md:hidden text-uni-muted p-1">✕</button>
           </div>
         </form>
 
