@@ -6,6 +6,7 @@ import connectDB from './config/db';
 import resourceRoutes from './routes/resourceRoutes';
 import statsRoutes from './routes/statsRoutes';
 import aiRoutes from './routes/aiRoutes';
+import authRoutes from './routes/authRoutes';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/resources', resourceRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/auth', authRoutes);
 
 // Base route
 app.get('/', (req, res) => {
@@ -33,6 +35,10 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+export default app;

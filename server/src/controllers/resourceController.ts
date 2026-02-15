@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Resource, { IResource } from '../models/Resource';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 // @desc    Get all resources
 // @route   GET /api/resources
@@ -52,9 +53,11 @@ export const createResource = async (req: Request, res: Response) => {
 
         const metadata = JSON.parse(req.body.data);
 
+        const result = await uploadToCloudinary(req.file.buffer);
+
         const resource = new Resource({
             ...metadata,
-            pdfUrl: `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`,
+            pdfUrl: result.secure_url,
             author: 'You', // Mock user for now
         });
 
