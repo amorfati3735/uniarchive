@@ -8,8 +8,13 @@ export const sendOtp = async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
 
-        if (!email || !email.endsWith('@vitstudent.ac.in')) {
-            res.status(400).json({ message: 'Please use a valid VIT student email (@vitstudent.ac.in)' });
+        // if (!email || !email.endsWith('@vitstudent.ac.in')) {
+        //     res.status(400).json({ message: 'Please use a valid VIT student email (@vitstudent.ac.in)' });
+        //     return;
+        // }
+
+        if (!email) {
+            res.status(400).json({ message: 'Email is required' });
             return;
         }
 
