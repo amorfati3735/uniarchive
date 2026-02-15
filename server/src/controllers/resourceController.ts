@@ -51,9 +51,16 @@ export const createResource = async (req: Request, res: Response) => {
             return;
         }
 
-        const metadata = JSON.parse(req.body.data);
-
-        const result = await uploadToCloudinary(req.file.buffer);
+        let result;
+        try {
+            console.log('[Upload] Starting Cloudinary upload...');
+            result = await uploadToCloudinary(req.file.buffer);
+            console.log('[Upload] Cloudinary success:', result.secure_url);
+        } catch (uploadError: any) {
+            console.error('[Upload] Cloudinary Failed:', uploadError);
+            res.status(500).json({ message: 'Cloud Upload Failed: ' + (uploadError.message || uploadError) });
+            return;
+        }
 
         const resource = new Resource({
             ...metadata,
@@ -64,6 +71,7 @@ export const createResource = async (req: Request, res: Response) => {
         const createdResource = await resource.save();
         res.status(201).json(createdResource);
     } catch (error: any) {
+        console.error('[CreateResource] Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
